@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Candy Catch Game</title>
+
+<style>
+    body {
+        background: #111;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+
+    #game {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        border: 3px solid white;
+        margin: 20px auto;
+        background: #000;
+        overflow: hidden;
+    }
+
+    .candy {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        background: red;
+        border-radius: 50%;
+        top: 0;
+    }
+
+    .basket {
+        position: absolute;
+        width: 80px;
+        height: 15px;
+        background: yellow;
+        bottom: 0;
+    }
+
+    #info {
+        margin-top: 10px;
+        font-size: 18px;
+    }
+</style>
+</head>
+
+<body>
+
+<h2>🍬 Candy Catch Game</h2>
+
+<div id="game">
+    <div class="basket" id="basket"></div>
+</div>
+
+<div id="info">
+    Score: <span id="score">0</span> |
+    Life: <span id="life">5</span>
+</div>
+
+<p>Use ⬅️ ➡️ Arrow Keys</p>
+
+<script>
+    const game = document.getElementById("game");
+    const basket = document.getElementById("basket");
+    const scoreEl = document.getElementById("score");
+    const lifeEl = document.getElementById("life");
+
+    const gameWidth = 400;
+    const gameHeight = 400;
+
+    let basketX = 160;
+    let basketSpeed = 7;
+
+    let candy = null;
+    let candyY = 0;
+    let candySpeed = 2;
+
+    let score = 0;
+    let life = 5;
+
+    /* move basket */
+    document.addEventListener("keydown", e => {
+        if (e.key === "ArrowLeft" && basketX > 0)
+            basketX -= basketSpeed;
+
+        if (e.key === "ArrowRight" && basketX < gameWidth - 80)
+            basketX += basketSpeed;
+
+        basket.style.left = basketX + "px";
+    });
+
+    function createCandy() {
+        candy = document.createElement("div");
+        candy.classList.add("candy");
+        candy.style.left = Math.random() * (gameWidth - 15) + "px";
+        candyY = 0;
+        game.appendChild(candy);
+    }
+
+    function gameLoop() {
+        if (!candy) createCandy();
+
+        candyY += candySpeed;
+        candy.style.top = candyY + "px";
+
+        const candyX = candy.offsetLeft;
+        const basketTop = gameHeight - 15;
+
+        // catch candy
+        if (
+            candyY >= basketTop - 10 &&
+            candyX >= basketX &&
+            candyX <= basketX + 80
+        ) {
+            score++;
+            scoreEl.textContent = score;
+            candySpeed += 0.2;
+            candy.remove();
+            candy = null;
+        }
+
+        // miss candy
+        if (candyY > gameHeight) {
+            life--;
+            lifeEl.textContent = life;
+            candy.remove();
+            candy = null;
+        }
+
+        if (life > 0)
+            requestAnimationFrame(gameLoop);
+        else
+            alert("Game Over!\nFinal Score: " + score);
+    }
+
+    basket.style.left = basketX + "px";
+    requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
